@@ -9,6 +9,7 @@
 import re,sys
 from bs4 import BeautifulSoup
 import urllib,urllib.request
+from selenium import webdriver
 
 class libriry:
     def __init__(self):
@@ -34,8 +35,14 @@ class libriry:
             print('========================================')
             for item in book_indro:
                 print(item.get_text('',strip=True))
+            # 使用PhantomJS解析json
+            driver = webdriver.PhantomJS()
+            driver.get(url)
+            data = driver.find_element_by_id('intro').text
+            print(data)
+            driver.quit()
             #print(book_item_indro.select('p',{'id':'intro'}))
-            print(u"序号 %s  (q:返回 Q:退出 ENTER:下一本书籍)"%(num))
+            print(u"\n序号 %s  (q:返回 Q:退出 ENTER:下一本书籍)"%(num))
             input1 = input()
             if input1 == 'q':
                 self.getUrl(search,page)
