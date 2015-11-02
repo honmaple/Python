@@ -4,6 +4,7 @@
 #   Author:JiangLin
 #   Mail:xiyang0807@gmail.com
 #   Created Time: 2015-10-26 07:36:41
+#   豆瓣分类
 #*************************************************************************
 #!/usr/bin/env python
 # -*- coding=UTF-8 -*-
@@ -11,6 +12,15 @@ import urllib,urllib.request
 from bs4 import BeautifulSoup
 import re
 import sqlite3
+# import pdb
+from selenium import webdriver
+    # books.execute("UPDATE BOOKS SET 题名责任人='%s' WHERE ID = %d"%(book_dd[0].get_text(),num));
+    # books.execute("UPDATE BOOKS SET 出版发行项='%s' WHERE ID = %d"%(book_dd[1].get_text(),num));
+    # books.execute("UPDATE BOOKS SET ISBN及定价='%s' WHERE ID = %d"%(book_dd[2].get_text(),num));
+    # books.execute("UPDATE BOOKS SET 载体形态项='%s' WHERE ID = %d"%(book_dd[3].get_text(),num));
+    # books.execute("UPDATE BOOKS SET 提要文摘附注='%s' WHERE ID = %d"%(book_dd[-3].get_text(),num));
+    # books.execute("UPDATE BOOKS SET 豆瓣简介='%s' WHERE ID = %d"%(data,num));
+
 
 try:
 
@@ -25,19 +35,27 @@ try:
     content = response.read().decode('utf-8')
     book_content = str(content)
     # 打开数据库
-    books = sqlite3.connect('books.db')
+    books = sqlite3.connect('books.db',check_same_thread = False)
     print ("Opened database successfully")
     # 创建数据库，如果数据库以存在则插入数据
     try:
         books.execute('''CREATE TABLE BOOKS
             (ID   INT   NOT NULL,
-             BOOKNAME TEXT NOT NULL,
-            CONTENT TEXT NOT NULL);''')
+            类型 TEXT NOT NULL,
+            书名 TEXT NOT NULL,
+            题名责任人  TEXT,
+            出版发行项 TEXT,
+            ISBN及定价 TEXT,
+            载体形态项 TEXT,
+            提要文摘附注 TEXT,
+            豆瓣简介 TEXT);''')
     except:
+        # pdb.set_trace()
         soup = BeautifulSoup(book_content,"lxml")
         main_soup = soup.find('div',{'id':'mainbox'})
         # 正则匹配cls_no的链接
         main_href = soup.find_all(href=re.compile("cls_no"))
+        print(main_href)
         # num ID数目
         num = 0
         # 删除数据库,本来是更新数据库的，小数据直接删除了
@@ -71,18 +89,46 @@ try:
                     book_item_indro = book_item_soup.find_all('dl',{'class':'booklist'})
                     print('========================================')
                     # 这里太耽搁时间，将CONTENT内容传入数据库
+                    # books.execute("INSERT INTO BOOKS (ID,类型,书名) \
+                    #         VALUES ('%d','%s','《%s》')"%(num,href.get_text(),book1.get_text()));
                     ber =0
+                    book_dt = book_item_soup.find_all('dt')
+                    book_dd = book_item_soup.find_all('dd')
                     for book in book_item_indro:
                         ber += 1
-                    book = ' '
-                    for i in range(0,ber):
-                        book += book_item_indro[i].get_text() #字符串连接
-                    book = book.replace('\n\n','')
-                    print(book)
-                    books.execute("INSERT INTO BOOKS (ID,BOOKNAME,CONTENT) \
-                            VALUES ('%d','《%s》','{%s\n}')"%(num,book1.get_text(),book));
+                        # b = re.compile(u"[\u4e00-\u9fa5]+:[\n]?")
+                        # c = b.findall(book.get_text())
+                        # print(c)
+                    # pdb.set_trace()
+                    # 使用PhantomJS解析json
+                    driver = webdriver.PhantomJS()
+                    driver.get(url)
+                    data = driver.find_element_by_id('intro').text
+                    print(data)
+                    driver.quit()
+                    print(book1.get_text())
+                    print(book_dt[ber-3].get_text())
+                    print(book_dd[ber-3].get_text())
+                    books.execute("INSERT INTO BOOKS (ID,类型,书名,题名责任人,出版发行项,ISBN及定价,载体形态项,提要文摘附注,豆瓣简介) \
+                            VALUES ('%d','%s','《%s》','%s','%s','%s','%s','%s','%s')"% \
+                                (num,href.get_text(),book1.get_text(),book_dd[0].get_text(), \
+                                    book_dd[1].get_text(), \
+                                    book_dd[2].get_text(), \
+                                    book_dd[3].get_text(), \
+                                    book_dd[-3].get_text(), \
+                                    data));
+
+#             t = threading.Thread(target=hello,args=(href,num))
+            # threads.append(t)
+#             num += 100
 
 except:
     books.commit()
     books.close()
 
+# if __name__ == '__main__':
+  #   for t in threads:
+        # t.setDaemon(True)
+        # t.start()
+  #   t.join()
+    #books.close()
