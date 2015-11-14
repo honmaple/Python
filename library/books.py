@@ -41,14 +41,14 @@ try:
     try:
         books.execute('''CREATE TABLE BOOKS
             (ID   INT   NOT NULL,
-            类型 TEXT NOT NULL,
-            书名 TEXT NOT NULL,
-            题名责任人  TEXT,
-            出版发行项 TEXT,
-            ISBN及定价 TEXT,
-            载体形态项 TEXT,
-            提要文摘附注 TEXT,
-            豆瓣简介 TEXT);''')
+            TYPE TEXT NOT NULL,
+            NAME TEXT NOT NULL,
+            DUTY  TEXT,
+            PUBLISH TEXT,
+            ISBN TEXT,
+            FORMS TEXT,
+            GEN TEXT,
+            DOU TEXT);''')
     except:
         # pdb.set_trace()
         soup = BeautifulSoup(book_content,"lxml")
@@ -109,7 +109,7 @@ try:
                     print(book1.get_text())
                     print(book_dt[ber-3].get_text())
                     print(book_dd[ber-3].get_text())
-                    books.execute("INSERT INTO BOOKS (ID,类型,书名,题名责任人,出版发行项,ISBN及定价,载体形态项,提要文摘附注,豆瓣简介) \
+                    books.execute("INSERT INTO BOOKS (ID,TYPE,NAME,DUTY,PUBLISH,ISBN,FORMS,GEN,DOU) \
                             VALUES ('%d','%s','《%s》','%s','%s','%s','%s','%s','%s')"% \
                                 (num,href.get_text(),book1.get_text(),book_dd[0].get_text(), \
                                     book_dd[1].get_text(), \
