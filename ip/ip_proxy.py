@@ -13,12 +13,7 @@ import random
 import time
 import sqlite3
 def contentlist(url):
-    proxylist = ('221.131.112.124:80',
-                '114.66.7.147:8080',
-            '120.195.193.0:80',
-            '120.195.205.133:80',
-            '120.195.206.241:80',
-            '120.195.195.126:80')
+    proxylist = ('120.195.199.251:80')
     proxies = {'':random.choice(proxylist)}
     proxy = urllib.request.ProxyHandler(proxies)
     opener = urllib.request.build_opener(proxy, urllib.request.HTTPHandler)
