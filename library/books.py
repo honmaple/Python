@@ -8,35 +8,29 @@
 #*************************************************************************
 #!/usr/bin/env python
 # -*- coding=UTF-8 -*-
-import urllib,urllib.request
+import urllib
+import urllib.request
 from bs4 import BeautifulSoup
 import re
 import sqlite3
 # import pdb
 from selenium import webdriver
-    # books.execute("UPDATE BOOKS SET 题名责任人='%s' WHERE ID = %d"%(book_dd[0].get_text(),num));
-    # books.execute("UPDATE BOOKS SET 出版发行项='%s' WHERE ID = %d"%(book_dd[1].get_text(),num));
-    # books.execute("UPDATE BOOKS SET ISBN及定价='%s' WHERE ID = %d"%(book_dd[2].get_text(),num));
-    # books.execute("UPDATE BOOKS SET 载体形态项='%s' WHERE ID = %d"%(book_dd[3].get_text(),num));
-    # books.execute("UPDATE BOOKS SET 提要文摘附注='%s' WHERE ID = %d"%(book_dd[-3].get_text(),num));
-    # books.execute("UPDATE BOOKS SET 豆瓣简介='%s' WHERE ID = %d"%(data,num));
 
 
 try:
 
     url = 'http://210.29.99.7:8080/top/top_lend.php'
-    # 伪装成浏览器
-    user_agent = [{'User-Agent':'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'},\
-            {'User-Agent':'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.12 Safari/535.11'},\
-            {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)'}]
-    headers = { 'User-Agent' : user_agent }
+    user_agent = [{'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'},
+                  {'User-Agent': 'Mozilla/5.0 (Windows NT 6.2) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.12 Safari/535.11'},
+                  {'User-Agent': 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)'}]
+    headers = {'User-Agent': user_agent}
     request = urllib.request.Request(url, headers=headers)
     response = urllib.request.urlopen(url)
     content = response.read().decode('utf-8')
     book_content = str(content)
     # 打开数据库
-    books = sqlite3.connect('books.db',check_same_thread = False)
-    print ("Opened database successfully")
+    books = sqlite3.connect('books.db', check_same_thread=False)
+    print("Opened database successfully")
     # 创建数据库，如果数据库以存在则插入数据
     try:
         books.execute('''CREATE TABLE BOOKS
@@ -51,8 +45,8 @@ try:
             DOU TEXT);''')
     except:
         # pdb.set_trace()
-        soup = BeautifulSoup(book_content,"lxml")
-        main_soup = soup.find('div',{'id':'mainbox'})
+        soup = BeautifulSoup(book_content, "lxml")
+        main_soup = soup.find('div', {'id': 'mainbox'})
         # 正则匹配cls_no的链接
         main_href = soup.find_all(href=re.compile("cls_no"))
         print(main_href)
@@ -67,12 +61,12 @@ try:
             response = urllib.request.urlopen(url)
             content = response.read().decode('utf-8')
             book_list_content = str(content)
-            book_list_soup = BeautifulSoup(book_list_content,"lxml")
-            book_list_list = book_list_soup.find_all('a',{'class':'blue'})
+            book_list_soup = BeautifulSoup(book_list_content, "lxml")
+            book_list_list = book_list_soup.find_all('a', {'class': 'blue'})
             for book1 in book_list_list:
                 num += 1
                 print(book1.get_text())
-                book_list_href = book1.get('href').replace('..','')
+                book_list_href = book1.get('href').replace('..', '')
                 if book_list_href == '/opac/book_cart.php':
                     continue
                 elif book_list_href == '/opac/search.php':
@@ -85,13 +79,15 @@ try:
                     response = urllib.request.urlopen(url)
                     content = response.read().decode('utf-8')
                     book_item_content = str(content)
-                    book_item_soup = BeautifulSoup(book_item_content,"lxml")
-                    book_item_indro = book_item_soup.find_all('dl',{'class':'booklist'})
+                    book_item_soup = BeautifulSoup(book_item_content, "lxml")
+                    book_item_indro = book_item_soup.find_all(
+                        'dl', {'class': 'booklist'})
                     print('========================================')
                     # 这里太耽搁时间，将CONTENT内容传入数据库
                     # books.execute("INSERT INTO BOOKS (ID,类型,书名) \
-                    #         VALUES ('%d','%s','《%s》')"%(num,href.get_text(),book1.get_text()));
-                    ber =0
+                    # VALUES
+                    # ('%d','%s','《%s》')"%(num,href.get_text(),book1.get_text()));
+                    ber = 0
                     book_dt = book_item_soup.find_all('dt')
                     book_dd = book_item_soup.find_all('dd')
                     for book in book_item_indro:
@@ -109,14 +105,18 @@ try:
                     print(book1.get_text())
                     print(book_dt[ber-3].get_text())
                     print(book_dd[ber-3].get_text())
-                    books.execute("INSERT INTO BOOKS (ID,TYPE,NAME,DUTY,PUBLISH,ISBN,FORMS,GEN,DOU) \
-                            VALUES ('%d','%s','《%s》','%s','%s','%s','%s','%s','%s')"% \
-                                (num,href.get_text(),book1.get_text(),book_dd[0].get_text(), \
-                                    book_dd[1].get_text(), \
-                                    book_dd[2].get_text(), \
-                                    book_dd[3].get_text(), \
-                                    book_dd[-3].get_text(), \
-                                    data));
+                    books.execute(
+                        "INSERT INTO BOOKS (ID,TYPE,NAME,DUTY,PUBLISH,ISBN,FORMS,GEN,DOU) \
+                            VALUES ('%d','%s','《%s》','%s','%s','%s','%s','%s','%s')" % (num,
+                                                                                        href.get_text(),
+                                                                                        book1.get_text(),
+                                                                                        book_dd[0].get_text(),
+                                                                                        book_dd[1].get_text(),
+                                                                                        book_dd[2].get_text(),
+                                                                                        book_dd[3].get_text(),
+                                                                                        book_dd[
+                                                                                            -3].get_text(),
+                                                                                        data))
 
 #             t = threading.Thread(target=hello,args=(href,num))
             # threads.append(t)
@@ -126,9 +126,3 @@ except:
     books.commit()
     books.close()
 
-# if __name__ == '__main__':
-  #   for t in threads:
-        # t.setDaemon(True)
-        # t.start()
-  #   t.join()
-    #books.close()

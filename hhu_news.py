@@ -11,25 +11,15 @@ import urllib
 import urllib2
 
 class Tool:
-    #去除img标签,7位长空格
     removeImg = re.compile('<img.*?>| {7}|')
-    #删除超链接标签
     removeAddr = re.compile('<a.*?>|</a>')
-    #删除span标签
     removeSpan = re.compile('<Span.*?>|</span>')
-    #把换行的标签换为\n
     replaceLine = re.compile('<tr>|<div>|</div>|</p>')
-    #将表格制表<td>替换为\t
     replaceTD= re.compile('<td>')
-    # 将空格&nbsp转化为
     replaceSpace = re.compile('&nbsp;')
-    #删除& quo字符
     replaceQuo = re.compile('&.*?quo')
-    # 将font开头加空格
     replacePara = re.compile('<font.*?>')
-    #将换行符或双换行符替换为\n
     replaceBR = re.compile('<br><br>|<br>')
-    #将其余标签剔除
     removeExtraTag = re.compile('<.*?>')
     def replace(self,x):
         x = re.sub(self.removeImg,"",x)
@@ -42,7 +32,6 @@ class Tool:
         x = re.sub(self.replacePara,"\n  ",x)
         x = re.sub(self.replaceBR,"\n",x)
         x = re.sub(self.removeExtraTag,"",x)
-        #strip()将前后多余内容删除
         return x.strip()
 
 class hhuc:
@@ -54,13 +43,9 @@ class hhuc:
         self.enable = False
     def getPage(self,pageIndex,url):
         try:
-            # url = 'http://202.119.112.75/s/2001/t/2016/p/5/i/' + str(pageIndex) + '/list.htm'
             url = url + str(pageIndex) + '/list.htm'
-            #构建请求的request
             request = urllib2.Request(url,headers = self.headers)
-            #利用urlopen获取页面代码
             response = urllib2.urlopen(request)
-            #将页面转化为UTF-8编码
             pageCode = response.read().decode('utf-8')
             return pageCode
 
@@ -73,10 +58,8 @@ class hhuc:
             if not pageCode:
                 print "页面加载失败...."
                 return None
-            # pattern = re.compile('<a href(.*?)>(.*?)<font color.*?>(.*?)</font></a>',re.S)
             pattern = re.compile('<td><a href=\'(.*?)\'.*?target.*?>.*?<font color.*?>(.*?)</font></a></td>',re.S)
             items = re.findall(pattern,pageCode)
-            #遍历正则表达式匹配的信息
             for item in items:
                 print "========================================================"
                 print item[1]
@@ -99,13 +82,9 @@ class hhuc:
             self.getPageItems(pageIndex)
     def getItem(self,page,urlItem):
         url = urlItem + str(page)
-        #构建请求的request
         request = urllib2.Request(url,headers = self.headers)
-        #利用urlopen获取页面代码
         response = urllib2.urlopen(request)
-        # pattern = re.compile('<td.*?class="content".*?><font size="3">(.*?)</font>.*?\n.*?<font.*?>(.*?)</font>.*?\n.*?<font.*?>(.*?)</font>.*?</td>',re.S)
         pattern = re.compile('<p.*?>.*?</p>',re.S)
-        #将页面转化为UTF-8编码
         pageCode = response.read().decode('utf-8')
         items = re.findall(pattern,pageCode)
         for item in items:
@@ -135,8 +114,6 @@ class hhuc:
             print u"输入错误请从新输入:"
             spider.start()
         #先加载一页内容
-
-
 spider = hhuc()
 spider.start()
 
