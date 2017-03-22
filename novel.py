@@ -14,6 +14,7 @@ import sys
 
 
 class Tool:
+
     removeImg = re.compile('<img.*?>| {7}|')
     removeAddr = re.compile('<a.*?>|</a>')
     removeSpan = re.compile('<Span.*?>|</span>')
@@ -36,7 +37,6 @@ class Tool:
 
 
 class Novel:
-
     def __init__(self):
         self.user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
         self.headers = {'User-Agent': self.user_agent}
@@ -48,8 +48,8 @@ class Novel:
             request = urllib.request.Request(url, headers=self.headers)
             response = urllib.request.urlopen(request)
             pageCode = response.read().decode('utf-8')
-            pattern = re.compile(
-                '<h3 class="core_title_txt.*?>(.*?)</h3>', re.S)
+            pattern = re.compile('<h3 class="core_title_txt.*?>(.*?)</h3>',
+                                 re.S)
             items = re.findall(pattern, pageCode)
             for item in items:
                 sys.stdout.write(self.tool.replace(item))
