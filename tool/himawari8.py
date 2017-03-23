@@ -6,19 +6,19 @@
 # Author: jianglin
 # Email: xiyang0807@gmail.com
 # Created: 2017-03-22 22:22:27 (CST)
-# Last Update:星期三 2017-3-22 22:22:38 (CST)
+# Last Update:星期四 2017-3-23 11:23:2 (CST)
 #          By:
 # Description:
 # **************************************************************************
-from PIL import Image
+from PIL import Image, ImageOps, ImageDraw
 from io import BytesIO
 from urllib.request import Request, urlopen
 from datetime import datetime, timedelta
 import json
 
-SCALE = 4
+SCALE = 2
 WIDTH = 1368
-HEIGHT = 738
+HEIGHT = 768
 
 
 def get_info():
@@ -30,12 +30,13 @@ def get_info():
 
 def download():
     png = Image.new('RGB', (550 * SCALE, 550 * SCALE))
-    desktop = Image.new('RGB', (WIDTH, HEIGHT))
-    # desktop = Image.open('/home/jianglin/Pictures/308556.jpg')
+    # desktop = Image.new('RGB', (WIDTH, HEIGHT))
+    desktop = Image.open('/home/jianglin/Pictures/308556.png')
     url_format = 'http://himawari8-dl.nict.go.jp/himawari8/img/D531106/{}d/{}/{}_{}_{}.png'
     info = get_info()
     date = datetime.strptime(info['date'], '%Y-%m-%d %H:%M:%S') + timedelta(
-        hours=-4)
+        hours=-6)
+    # date = datetime.strptime(info['date'], '%Y-%m-%d %H:%M:%S')
     for x in range(SCALE):
         for y in range(SCALE):
             url = url_format.format(SCALE, 550,
@@ -45,9 +46,46 @@ def download():
             response = urlopen(request, timeout=10)
             img = Image.open(BytesIO(response.read()))
             png.paste(img, (550 * x, 550 * y, 550 * (x + 1), 550 * (y + 1)))
-    png.thumbnail((HEIGHT, HEIGHT), Image.ANTIALIAS)
-    desktop.paste(png, ((WIDTH - HEIGHT) // 2, 0))
+    png = circle(png)
+    desktop.paste(png, (160, 160), png)
     desktop.save('/tmp/earth.png', "PNG")
+    set_background()
+
+
+def circle(img):
+    width = SCALE * 550
+    height = SCALE * 550
+    size = (width, height)
+    mask = Image.new('L', size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((3, 3, width - 3, height - 3), fill=255)
+    output = ImageOps.fit(img, mask.size, centering=(0.5, 0.5))
+    output.putalpha(mask)
+    output.thumbnail((214, 214), Image.ANTIALIAS)
+    return output
+
+
+def convert():
+    # size = (768, 768)
+    # mask = Image.new('L', size, 0)
+    # draw = ImageDraw.Draw(mask)
+    # draw.ellipse((3, 3, 765, 765), fill=255)
+    # im = Image.open('/tmp/earth.png')
+    # output = ImageOps.fit(im, mask.size, centering=(0.5, 0.5))
+    # output.putalpha(mask)
+    # output.thumbnail((256, 256), Image.ANTIALIAS)
+    # output.save('output.png')
+    # output.convert("RGBA")
+    output = Image.open('output.png')
+    output.thumbnail((214, 214), Image.ANTIALIAS)
+    desktop = Image.open('/home/jianglin/Pictures/308556.png')
+    desktop.paste(output, (160, 160), output)
+    desktop.save('/tmp/earch.png', "PNG")
+
+
+def set_background():
+    import os
+    os.system('feh --bg-scale /tmp/earth.png')
 
 
 if __name__ == '__main__':
