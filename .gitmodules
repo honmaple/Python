@@ -1,0 +1,6 @@
+[submodule "spider"]
+	path = spider
+	url = https://github.com/honmaple/maple-spider
+[submodule "game"]
+	path = game
+	url = https://github.com/honmaple/maple-game

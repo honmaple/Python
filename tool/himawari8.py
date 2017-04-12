@@ -6,7 +6,7 @@
 # Author: jianglin
 # Email: xiyang0807@gmail.com
 # Created: 2017-03-22 22:22:27 (CST)
-# Last Update:星期四 2017-3-23 11:23:2 (CST)
+# Last Update:星期四 2017-3-23 12:25:2 (CST)
 #          By:
 # Description:
 # **************************************************************************
@@ -34,9 +34,9 @@ def download():
     desktop = Image.open('/home/jianglin/Pictures/308556.png')
     url_format = 'http://himawari8-dl.nict.go.jp/himawari8/img/D531106/{}d/{}/{}_{}_{}.png'
     info = get_info()
-    date = datetime.strptime(info['date'], '%Y-%m-%d %H:%M:%S') + timedelta(
-        hours=-6)
-    # date = datetime.strptime(info['date'], '%Y-%m-%d %H:%M:%S')
+    # date = datetime.strptime(info['date'], '%Y-%m-%d %H:%M:%S') + timedelta(
+    #     hours=-6)
+    date = datetime.strptime(info['date'], '%Y-%m-%d %H:%M:%S')
     for x in range(SCALE):
         for y in range(SCALE):
             url = url_format.format(SCALE, 550,
